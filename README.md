@@ -16,7 +16,26 @@ A TypeScript library for managing Temporal workflow and activity registries with
 ## Installation
 
 ```bash
-npm install temporal-registry
+npm install temporal-registry reflect-metadata
+```
+
+### TypeScript Configuration
+
+To use the metadata decorators, you need to enable experimental decorators in your `tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  }
+}
+```
+
+You also need to import `reflect-metadata` at the entry point of your application (before any decorators are used):
+
+```typescript
+import 'reflect-metadata';
 ```
 
 ## Usage
@@ -111,6 +130,22 @@ The package is configured with `prepublishOnly` hooks to ensure tests pass and t
 ```bash
 npm publish
 ```
+
+## Limitations
+
+### Activity Metadata Extraction
+
+- **Nested Object Depth**: Complex nested objects are only introspected one level deep. Properties of nested classes are extracted, but deeply nested structures (e.g., objects within objects within objects) may lose type information beyond the first level.
+
+- **Array Element Types**: Arrays without explicit type annotations using `@ActivityProperty({ type: [ElementType] })` will be recognized as `Array` type but without element type information. Always use the explicit type syntax for typed arrays.
+
+- **Primitive Type Coverage**: Only the following primitive types are explicitly recognized:
+  - `String`, `Number`, `Boolean`
+  - `BigInt`, `Symbol`
+  - `Date`, `RegExp`, `Error`
+  - Other types (e.g., `Map`, `Set`, typed tuples, `WeakMap`, `WeakSet`) are not automatically detected
+
+- **Design-time Type Information**: The metadata extraction works at runtime but depends on design-time type information emitted by TypeScript. Complex types like union types, intersection types, or generic types may not be fully represented in the extracted metadata.
 
 ## License
 
